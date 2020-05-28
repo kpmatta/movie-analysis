@@ -1,8 +1,8 @@
 # Movie Analysis 
 
 ### Build and test
-mvn test
-mvn package
+- mvn test
+- mvn package
 
 ### Run
 - local spark submit
