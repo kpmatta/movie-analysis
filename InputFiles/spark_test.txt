@@ -1,0 +1,16 @@
+Spark Test
+===========
+Use the MovieLens 1 Million Dataset for this exercise. It can be downloaded from http://grouplens.org/datasets/movielens.
+Dataset is available under http://files.grouplens.org/datasets/movielens/ml-1m.zip. 
+Please refer to the Read Me file at http://files.grouplens.org/datasets/movielens/ml-1m-README.txt for details about the data.
+
+Use Spark and (Scala or Java) to complete the following test.
+
+1. Define the project folder structure and dependencies using either SBT or Maven or gradle. Add Apache Spark dependency to the project.
+2. Write Spark code to generate the following outputs in the target directory inside the project.
+A. A CSV file containing list of unique Genres and no of movies under each genres
+   CSV file should contain 2 columns, ie: Genres, No of Movies. Column headers are not required.
+B. Generate a parquet file that contain the top 100 movies based on their ratings. This should have fields, Rank (1-100), Movie Id, Title, Average Rating. Rank 1 is the most popular movie.
+3. Write at least one unit test to test the code you wrote for A,B, or C in 2 if you haven’t already done so.
+
+Put your code on github and share the link.
