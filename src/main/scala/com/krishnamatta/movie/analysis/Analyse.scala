@@ -3,7 +3,8 @@ package com.krishnamatta.movie.analysis
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types._
-import org.apache.spark.sql.{DataFrame, Row, SaveMode, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, Row, SaveMode, SparkSession}
+import scala.util.Try
 
 object Analyse {
 
@@ -30,12 +31,14 @@ object Analyse {
     * @param moviesFilePath : input file path
     * @return               : DataFrame
     */
-  def loadMovieData(moviesFilePath : String) : DataFrame = {
+  def loadMovieData(moviesFilePath : String): Dataset[Movies] = {
     import spark.implicits._
     spark.read.text(moviesFilePath)
       .map(_.getString(0).split("::"))
-      .map(row => Movies(row(0).toLong, row(1), row(2)))
-      .toDF
+      .flatMap(
+        row => Try(Movies(row(0).toLong, row(1), row(2).split("\\|"))).toOption
+      )
+
 
     // Alternative way of reading with schema file
 //    val schema = StructType(List(
@@ -51,12 +54,13 @@ object Analyse {
     * @param ratingsFilePath   : input file path
     * @return                  : DataFrame
     */
-  def loadRatingsData(ratingsFilePath : String): DataFrame = {
+  def loadRatingsData(ratingsFilePath : String): Dataset[Ratings] = {
     import spark.implicits._
-    spark.sparkContext.textFile(ratingsFilePath)
-      .map(_.split("::"))
-      .map(row => Ratings(row(0).toLong, row(1).toLong, row(2).toInt, row(3).toLong))
-      .toDF()
+    spark.read.text(ratingsFilePath)
+      .map(_.getString(0).split("::"))
+      .flatMap(
+        row => Try(Ratings(row(0).toLong, row(1).toLong, row(2).toInt, row(3).toLong)).toOption
+      )
 
     // Alternative way of reading with schema file
 //    val schema = StructType(List(
@@ -70,11 +74,11 @@ object Analyse {
 
   // A. CSV file containing list of unique Genres and no of movies under each genres
   // CSV file should contain 2 columns, ie: Genres, No of Movies. Column headers are not required.
-  def getNumberOfMoviesPerGenres(movieDF : DataFrame): DataFrame = {
+  def getNumberOfMoviesPerGenres(movieDF : Dataset[Movies]): Dataset[Row] = {
 
-    // split Genres column and explode to expand rows.
-    movieDF
-      .withColumn("Genres", explode(split(col("Genres"), "\\|")))
+    import movieDF.sparkSession.implicits._
+    movieDF.flatMap(_.Genres)
+      .withColumnRenamed("value", "Genres")
       .groupBy("Genres")
       .count()
       .orderBy("Genres")
@@ -88,8 +92,8 @@ object Analyse {
     * @param ratingsDF  : Input ratings dataframe
     * @param movieDF    : input movie dataframe
     */
-  def getTopRatedMovie(ratingsDF : DataFrame,
-                       movieDF : DataFrame,
+  def getTopRatedMovie(ratingsDF : Dataset[Ratings],
+                       movieDF : Dataset[Movies],
                        top : Int ) : DataFrame = {
 
     val winSpec = Window.orderBy(desc("Average_Rating"))
@@ -98,7 +102,7 @@ object Analyse {
       .groupBy("MovieID")
       .agg(avg("Rating").alias("Average_Rating"))
       .withColumn("Rank", rank().over(winSpec))
-      .join(movieDF.as("movies"), movieDF("MovieID") === ratingsDF("MovieID"))
+      .join(broadcast(movieDF.as("movies")), movieDF("MovieID") === ratingsDF("MovieID"))
       .select("Rank", "movies.MovieID", "movies.Title", "Average_Rating")
       .orderBy("Rank")
       .limit(top)
