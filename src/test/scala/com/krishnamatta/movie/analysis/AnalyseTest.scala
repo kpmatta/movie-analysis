@@ -65,13 +65,12 @@ class AnalyseTest extends FunSuite with Matchers with BeforeAndAfter {
     topRatedMoviesDF.count() shouldBe top
   }
 
-  ignore("testFullTest") {
-    Analyse.main(Array(""))
+  test("testGetNumberOfMoviesAndAverageRatings") {
+    val dd = Analyse.loadRatingsData(inputMovieRatingsPath)
 
-    val outputMovieGenresPath = projectDir + "/target/MovieGenres/"
-    val outputMovieRatingsPath = projectDir + "/target/TopMovies/"
-
-    spark.read.csv(outputMovieGenresPath).count() shouldBe 18
-    spark.read.parquet(outputMovieRatingsPath).count()  shouldBe 100
+    dd.groupBy("UserID")
+      .agg(count("MovieID").as("Number of Movies"), avg("Rating").as("Average Rating"))
+      .orderBy("UserID")
+      .show(false)
   }
 }

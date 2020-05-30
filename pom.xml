@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.discover.movie.analysis</groupId>
+    <groupId>com.krishnamatta.movie.analysis</groupId>
     <artifactId>movie-analysis</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <spark.version>2.4.0</spark.version>
-        <scala.version>2.11.8</scala.version>
-        <scala.binary.version>2.11</scala.binary.version>
+        <spark.version>2.4.4</spark.version>
+        <scala.version>2.12.11</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
         <java.major.version>1.8</java.major.version>
         <maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
         <maven.compiler.plugin>3.8.1</maven.compiler.plugin>
