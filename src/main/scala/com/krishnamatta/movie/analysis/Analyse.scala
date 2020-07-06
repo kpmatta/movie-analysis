@@ -38,15 +38,6 @@ object Analyse {
       .flatMap(
         row => Try(Movies(row(0).toLong, row(1), row(2).split("\\|"))).toOption
       )
-
-
-    // Alternative way of reading with schema file
-//    val schema = StructType(List(
-//      StructField("MovieID", LongType, false),
-//      StructField("Title", StringType, false),
-//      StructField("Genres", StringType, false)
-//    ))
-//    ReadFile.loadCsv(moviesFilePath, "::", schema)
   }
 
   /**
@@ -61,15 +52,6 @@ object Analyse {
       .flatMap(
         row => Try(Ratings(row(0).toLong, row(1).toLong, row(2).toInt, row(3).toLong)).toOption
       )
-
-    // Alternative way of reading with schema file
-//    val schema = StructType(List(
-//      StructField("UserID", LongType, false),
-//      StructField("MovieID", LongType, false),
-//      StructField("Rating", IntegerType, false),
-//      StructField("Timestamp", LongType, false)
-//    ))
-//    ReadFile.loadCsv(ratingsFilePath, "::", schema)
   }
 
   // A. CSV file containing list of unique Genres and no of movies under each genres
